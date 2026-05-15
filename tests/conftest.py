@@ -8,7 +8,7 @@ def _make_dxf_with_zone(tmp_path, filename, polygons_mm, prop_texts=None):
     msp = doc.modelspace()
     prop_texts = prop_texts or [None] * len(polygons_mm)
     for pts, prop_text in zip(polygons_mm, prop_texts):
-        msp.add_lwpolyline(pts, dxfattribs={"layer": "LIGHT_ZONE", "closed": True})
+        msp.add_lwpolyline(pts, close=True, dxfattribs={"layer": "LIGHT_ZONE"})
         if prop_text:
             xs = [p[0] for p in pts]
             ys = [p[1] for p in pts]
