@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "lighting-agent"
+version = "0.1.0"
+description = "AI-driven illuminance calculation and lighting layout design"
+requires-python = ">=3.11"
+dependencies = [
+    "ezdxf>=1.3",
+    "numpy>=1.26",
+    "scipy>=1.12",
+    "reportlab>=4.1",
+    "fastmcp>=0.4",
+    "click>=8.1",
+]
+
+[project.scripts]
+lighting-agent = "cli.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

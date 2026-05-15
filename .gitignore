@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.env
+
+# Radiance temp files
+*.oct
+*.pts
+*.unf
+*.hdr
+
+# Output files (don't commit generated reports)
+output/
+*.pdf
+*.png
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Test cache
+.pytest_cache/
+.coverage
