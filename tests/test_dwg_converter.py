@@ -25,9 +25,11 @@ def test_ensure_dxf_raises_file_not_found_for_missing_dwg():
         ensure_dxf(Path("/nonexistent/file.dwg"))
 
 
-def test_ensure_dxf_raises_if_dwg2dxf_missing(tmp_path, monkeypatch):
+def test_ensure_dxf_raises_if_no_converter(tmp_path, monkeypatch):
+    import lighting_agent.cad.dwg_converter as mod
     monkeypatch.setattr(shutil, "which", lambda _cmd: None)
+    monkeypatch.setattr(mod, "_oda_available", lambda: False)
     fake_dwg = tmp_path / "test.dwg"
     fake_dwg.write_bytes(b"fake")
-    with pytest.raises(RuntimeError, match="dwg2dxf not found"):
+    with pytest.raises(RuntimeError, match="No DWG converter found"):
         ensure_dxf(fake_dwg)
