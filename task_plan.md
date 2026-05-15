@@ -2,22 +2,22 @@
 
 ## 当前目标
 
-完成 Phase 1：CAD 解析 + DWG 支持，输出能从 `.dwg` 或 `.dxf` 正确解析出 `list[Room]` 的功能。
+完成 Phase 2：Radiance 模型生成，给定 Room 数据能完成一次仿真并返回照度数值。
 
 ---
 
-## Phase 1：CAD 解析 + DWG 支持
+## Phase 1：CAD 解析 + DWG 支持✅ 已完成
 
-**里程碑**：给定 `.dwg` 或 `.dxf`，能正确输出 `list[Room]`
+**里程碑**：给定 `.dwg` 或 `.dxf`，能正确输出 `list[Room]` ✅
 
 | # | 任务 | 文件 | 状态 |
 |---|------|------|------|
-| 1.1 | 封装 `dwg2dxf`，自动检测 DWG/DXF 输入 | `cad/dwg_converter.py` | ⬜ 待开始 |
-| 1.2 | 读取 DXF，识别 `LIGHT_ZONE` 图层的闭合多边形 | `cad/parser.py` | ⬜ 待开始 |
-| 1.3 | 坐标转换（mm → m），生成地板/墙/天花板面片 | `cad/geometry.py` | ⬜ 待开始 |
-| 1.4 | 单元测试：DWG 转换 | `tests/test_dwg_converter.py` | ⬜ 待开始 |
-| 1.5 | 单元测试：DXF 解析 | `tests/test_cad_parser.py` | ⬜ 待开始 |
-| 1.6 | 准备测试 fixtures（样本 DXF/DWG） | `tests/fixtures/` | ⬜ 待开始 |
+| 1.1 | 封装 `dwg2dxf`，自动检测 DWG/DXF 输入 | `cad/dwg_converter.py` | ✅ 完成 |
+| 1.2 | 读取 DXF，识别 `LIGHT_ZONE` 图层的闭合多边形 | `cad/parser.py` | ✅ 完成 |
+| 1.3 | 坐标转换（mm → m），多边形工具函数 | `cad/geometry.py` | ✅ 完成 |
+| 1.4 | 单元测试：DWG 转换 | `tests/test_dwg_converter.py` | ✅ 完成 |
+| 1.5 | 单元测试：DXF 解析 | `tests/test_cad_parser.py` | ✅ 完成 |
+| 1.6 | 测试 fixtures（程序化生成 DXF） | `tests/conftest.py` | ✅ 完成 |
 | 1.7 | 编写 CAD 图层规范文档 | `docs/cad-layer-convention.md` | ⬜ 待开始 |
 
 ---
