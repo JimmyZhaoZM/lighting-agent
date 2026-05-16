@@ -5,6 +5,7 @@ import ezdxf
 from .dwg_converter import ensure_dxf
 from .geometry import vertices_mm_to_m, validate_polygon, point_in_polygon, polygon_area
 from ..schemas import Room
+from ..utils.checkpoint import save_phase1_checkpoint
 
 _LAYER_PREFIX = "LIGHT_ZONE"  # matches "LIGHT_ZONE", "LIGHT_ZONE_堆货区", etc.
 _DEFAULT_HEIGHT = 3.0
@@ -125,6 +126,19 @@ def parse_rooms(cad_path: str, tmp_dir: str | None = None) -> list[Room]:
                     mount_height=mount,
                 )
             )
+        if rooms:
+            checkpoint_data = [
+                {
+                    "name": r.name,
+                    "polygon": r.polygon,
+                    "height_m": r.height,
+                    "work_plane_height_m": r.work_plane_height,
+                    "target_lux": r.target_lux,
+                    "mount_height_m": r.mount_height,
+                }
+                for r in rooms
+            ]
+            save_phase1_checkpoint(checkpoint_data)
         return rooms
     finally:
         if was_converted:

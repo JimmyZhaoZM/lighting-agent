@@ -19,6 +19,9 @@ output/
 *.pdf
 *.png
 
+# Run checkpoints (generated at runtime, not committed)
+docs/checkpoints/phase*.json
+
 # macOS
 .DS_Store
 
