@@ -46,7 +46,7 @@ ProjectConfig → pipeline.py → 串联全流程
 ## 关键设计决策（已定，不重新讨论）
 
 - **仿真引擎**：Radiance（LEED 认证，支持 IES 配光曲线，支持非矩形房间）
-- **DWG 转换**：LibreDWG `dwg2dxf`（支持 R13~2018）
+- **DWG 转换**：ODA File Converter（主选，需手动安装到 /Applications/ODAFileConverter.app）；LibreDWG `dwg2dxf` 作备用
 - **对外接口**：FastMCP Server（tool call）+ Click CLI
 - **优化策略**：先简单网格枚举（nx×ny），后续可扩展遗传算法
 
@@ -66,7 +66,8 @@ pytest tests/test_cad_parser.py # 运行单个模块测试
 ./install.sh                                          # 安装依赖
 python -m mcp_server.server                           # 启动 MCP Server
 lighting-agent run --dxf plan.dxf --ies ./ies/ --output ./output/  # CLI
-which oconv rtrace rpict falsecolor ies2rad dwg2dxf   # 验证 Radiance 安装
+which oconv rtrace rpict falsecolor ies2rad            # 验证 Radiance 安装
+ls /Applications/ODAFileConverter.app                  # 验证 ODA 安装
 ```
 
 ## 完整架构参考
