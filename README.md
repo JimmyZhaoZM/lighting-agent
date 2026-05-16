@@ -97,7 +97,7 @@ mcp_server/       # MCP Server for AI agent tool calls
 cli/              # Command-line interface
 docs/
 ├── cad-layer-convention.md   # How to draw LIGHT_ZONE layers in CAD
-└── rooms_example.json        # Example Phase 1 output (debug checkpoint)
+└── checkpoints/              # Auto-generated run logs (phase1_YYYYMMDD_HHMMSS.json, last 10 kept)
 ```
 
 ## License
