@@ -11,8 +11,10 @@ venv/
 # Radiance temp files
 *.oct
 *.pts
+*.rad
 *.unf
 *.hdr
+docs/sim_test/
 
 # Output files (don't commit generated reports)
 output/
