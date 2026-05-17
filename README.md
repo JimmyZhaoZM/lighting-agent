@@ -6,15 +6,39 @@ Input a CAD drawing (DWG/DXF) + IES photometric files + illuminance requirements
 
 ---
 
-## Before You Start — Manual Step Required
+## Before You Start — Manual Steps Required
 
-**DWG file support requires ODA File Converter**, which must be installed manually (it is a GUI application and cannot be installed via Homebrew):
+Two tools cannot be installed automatically and must be set up manually first:
+
+### 1. Radiance (required for simulation)
+
+The Homebrew formula for Radiance has been removed. Install from the official GitHub releases:
+
+1. Go to: https://github.com/LBNL-ETA/Radiance/releases
+2. Download the latest macOS `.pkg` for your chip:
+   - **Apple Silicon (M1/M2/M3/M4)** → `Radiance_*_OSX_arm64.pkg`
+   - **Intel Mac** → `Radiance_*_OSX.pkg`
+3. Run the installer
+   > **macOS security warning:** macOS may block the installer with "cannot be opened because it is from an unidentified developer." To bypass this:
+   > 1. Double-click the `.pkg` — it will be blocked
+   > 2. Open **System Settings → Privacy & Security**
+   > 3. Scroll down and click **"Open Anyway"** next to the Radiance entry
+   > 4. Confirm in the dialog that appears
+4. Add Radiance to your PATH and set the library path (both are required):
+   ```bash
+   echo 'export PATH="/usr/local/radiance/bin:$PATH"' >> ~/.zshrc
+   echo 'export RAYPATH="/usr/local/radiance/lib"' >> ~/.zshrc
+   source ~/.zshrc
+   ```
+   > **Note:** `RAYPATH` is needed so Radiance tools can find their `.cal` library files (e.g. `rayinit.cal`). Without it, `rtrace` will fail at runtime even if `oconv` works fine.
+5. Verify: `which oconv` should print a path
+
+### 2. ODA File Converter (required for DWG input only)
 
 1. Download from: https://www.opendesign.com/guestfiles/oda_file_converter
 2. Install to `/Applications/ODAFileConverter.app`
-3. Then run `./install.sh`
 
-> If you only use DXF files (not DWG), you can skip this step.
+> If you only use DXF files (not DWG), you can skip step 2.
 
 ---
 
@@ -23,7 +47,8 @@ Input a CAD drawing (DWG/DXF) + IES photometric files + illuminance requirements
 - macOS (Apple Silicon or Intel)
 - Python 3.11+
 - Homebrew
-- ODA File Converter (for DWG input — see above)
+- **Radiance** — manual install required (see above)
+- ODA File Converter — for DWG input (see above)
 
 ## Installation
 
@@ -34,10 +59,9 @@ cd lighting-agent
 ```
 
 `install.sh` will automatically install:
-- **Radiance** (`brew install radiance`) — oconv, rtrace, rpict, falsecolor, ies2rad
 - **Python packages** — ezdxf, numpy, scipy, reportlab, fastmcp, click
 
-It will also verify that ODA File Converter is present and warn if not found.
+It will also verify that Radiance and ODA File Converter are present and warn if not found.
 
 ## Quick Start
 

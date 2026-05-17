@@ -3,12 +3,20 @@ set -e
 
 echo "=== LightingAgent 安装脚本 ==="
 echo ""
-echo "⚠️  前置手动步骤（脚本无法自动完成）："
-echo "    DWG 文件转换需要 ODA File Converter，请先手动安装："
-echo "    https://www.opendesign.com/guestfiles/oda_file_converter"
-echo "    安装后确认路径：/Applications/ODAFileConverter.app"
+echo "⚠️  以下两项需要手动安装（脚本无法自动完成）："
 echo ""
-read -p "已安装 ODA File Converter？按 Enter 继续，Ctrl+C 退出先去安装..." _
+echo "  1. Radiance（照度仿真引擎，必须）"
+echo "     Homebrew formula 已下架，请从官方 GitHub Releases 手动安装 pkg："
+echo "     https://github.com/LBNL-ETA/Radiance/releases"
+echo "     Apple Silicon (M1/M2/M3/M4)：下载 Radiance_*_OSX_arm64.pkg"
+echo "     Intel Mac：                  下载 Radiance_*_OSX.pkg"
+echo "     安装后将 /usr/local/radiance/bin 加入 PATH，确认 'which oconv' 有输出"
+echo ""
+echo "  2. ODA File Converter（仅 DWG 输入需要）"
+echo "     https://www.opendesign.com/guestfiles/oda_file_converter"
+echo "     安装后确认路径：/Applications/ODAFileConverter.app"
+echo ""
+read -p "已完成上述手动安装？按 Enter 继续，Ctrl+C 退出先去安装..." _
 
 # 1. 检查 Homebrew
 if ! command -v brew &>/dev/null; then
@@ -16,43 +24,34 @@ if ! command -v brew &>/dev/null; then
   exit 1
 fi
 
-# 2. 安装 Radiance
-if ! command -v oconv &>/dev/null; then
-  echo "[1/3] 安装 Radiance..."
-  brew install radiance
-else
-  echo "[1/3] Radiance 已安装：$(which oconv)"
-fi
-
-# 3. 验证 Radiance 工具
-for cmd in oconv rtrace rpict falsecolor ies2rad; do
-  if ! command -v "$cmd" &>/dev/null; then
-    echo "  [警告] Radiance 工具 '$cmd' 未找到，请检查 PATH"
-  fi
-done
-
-# 4. 安装 Python 依赖
-echo "[2/3] 安装 Python 依赖..."
+# 2. 安装 Python 依赖
+echo "[1/2] 安装 Python 依赖..."
 pip install -e .
 
-# 5. 验证安装
-echo "[3/3] 验证安装..."
+# 3. 验证安装
+echo "[2/2] 验证安装..."
 python -c "from lighting_agent import schemas; print('  Python 包: OK')"
-echo "  Radiance oconv:       $(command -v oconv || echo '❌ 未找到')"
+
+echo ""
+if command -v oconv &>/dev/null; then
+  echo "  Radiance oconv:       ✅ $(which oconv)"
+else
+  echo "  Radiance oconv:       ❌ 未找到 — 仿真功能不可用"
+  echo "     → 请从 https://github.com/NREL/Radiance/releases 安装后重新运行"
+fi
 
 ODA_BIN="/Applications/ODAFileConverter.app/Contents/MacOS/ODAFileConverter"
 if [ -f "$ODA_BIN" ]; then
   echo "  ODA File Converter:   ✅ 已安装"
 else
-  echo "  ODA File Converter:   ❌ 未找到，DWG 输入将不可用"
+  echo "  ODA File Converter:   ❌ 未找到 — DWG 输入将不可用"
   echo "     → 请安装：https://www.opendesign.com/guestfiles/oda_file_converter"
 fi
 
-# LibreDWG 作为备用（可选）
 if command -v dwg2dxf &>/dev/null; then
-  echo "  LibreDWG dwg2dxf:     ✅ 已安装（备用）"
+  echo "  LibreDWG dwg2dxf:     ✅ 已安装（ODA 备用）"
 else
-  echo "  LibreDWG dwg2dxf:     — 未安装（ODA 已安装则无需此项）"
+  echo "  LibreDWG dwg2dxf:     — 未安装（ODA 已安装则无需）"
 fi
 
 echo ""
