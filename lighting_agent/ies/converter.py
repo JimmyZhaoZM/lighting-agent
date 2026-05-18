@@ -13,7 +13,7 @@ We preprocess the IES file to replace (0, 0) with (0.01, 0.01) metres.
 from __future__ import annotations
 
 import os
-import shutil
+import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -43,7 +43,9 @@ def convert_ies(ies_data: IESData, work_dir: Path) -> RadSource:
     work_dir = Path(work_dir)
     work_dir.mkdir(parents=True, exist_ok=True)
 
-    name = ies_data.name
+    # Use an ASCII-safe stem: ies2rad embeds the output name in the .rad file;
+    # non-ASCII characters cause garbled references to the .dat photometric file.
+    name = _safe_stem(ies_data.name)
     fixed_ies = work_dir / f"{name}_fixed.ies"
     out_stem = str(work_dir / name)
 
@@ -73,6 +75,18 @@ def convert_ies(ies_data: IESData, work_dir: Path) -> RadSource:
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
+def _safe_stem(name: str) -> str:
+    """Return an ASCII-safe filename stem for ies2rad -o output.
+
+    Strips non-ASCII characters then replaces any remaining non-word characters
+    (except hyphens) with underscores.  Falls back to 'ies_source' if the result
+    is empty.
+    """
+    ascii_only = name.encode("ascii", "ignore").decode("ascii")
+    safe = re.sub(r"[^\w\-]", "_", ascii_only).strip("_")
+    return safe if safe else "ies_source"
+
 
 def _fix_dimensions(ies_text: str) -> str:
     """Replace zero width/length in the lamp descriptor line with _MIN_DIM."""

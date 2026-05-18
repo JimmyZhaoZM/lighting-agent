@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from lighting_agent.ies.converter import RadSource, _fix_dimensions, convert_ies
+from lighting_agent.ies.converter import RadSource, _fix_dimensions, _safe_stem, convert_ies
 from lighting_agent.ies.loader import IESData, parse_ies, scan_ies_dir
 
 FIXTURE_IES = Path(__file__).parent / "fixtures" / "飞碟灯-75W.ies"
@@ -140,7 +140,7 @@ class TestConvertIES:
 
         assert isinstance(result, RadSource)
         assert result.rad_path.exists()
-        assert result.name == ies_data.name
+        assert result.name == _safe_stem(ies_data.name)
 
     def test_convert_creates_work_dir(self, tmp_path: Path):
         ies_data = parse_ies(FIXTURE_IES)
@@ -170,8 +170,8 @@ class TestConvertIES:
         with patch("lighting_agent.ies.converter.subprocess.run", side_effect=fake_run):
             convert_ies(ies_data, wd)
 
-        # The dimension-fixed IES copy should exist in work_dir
-        assert (wd / f"{ies_data.name}_fixed.ies").exists()
+        # The dimension-fixed IES copy should exist in work_dir (ASCII-safe name)
+        assert (wd / f"{_safe_stem(ies_data.name)}_fixed.ies").exists()
 
 
 # ---------------------------------------------------------------------------

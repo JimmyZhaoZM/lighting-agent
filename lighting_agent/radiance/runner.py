@@ -11,8 +11,12 @@ from lighting_agent.radiance.model_builder import compile_oct, write_materials, 
 from lighting_agent.radiance.result_parser import build_simulation_result, parse_rtrace_lines
 from lighting_agent.schemas import Luminaire, Room, SimulationResult
 
-# rtrace parameters: -I irradiance, -h- suppress header, -fa ASCII output
+# Default rtrace parameters: -I irradiance, -h- suppress header, -fa ASCII output
+# Accuracy/speed trade-off: ab=ambient bounces, ad=ambient divisions, as=ambient super-samples
 _RTRACE_ARGS = ["-I", "-h-", "-fa", "-ab", "2", "-ad", "512", "-as", "256"]
+
+# Fast preset for smoke-tests and demos — lower quality but finishes in seconds
+RTRACE_ARGS_FAST = ["-I", "-h-", "-fa", "-ab", "1", "-ad", "64", "-as", "0"]
 
 # Radiance library path — needed for rayinit.cal and other .cal files
 _RADIANCE_LIB = Path("/usr/local/radiance/lib")
@@ -66,11 +70,21 @@ def write_sensors_pts(
     return path
 
 
-def run_rtrace(oct_path: Path, sensors_path: Path) -> list[str]:
-    """Call rtrace and return raw output lines (one 'R G B' per sensor)."""
+def run_rtrace(
+    oct_path: Path,
+    sensors_path: Path,
+    rtrace_args: list[str] | None = None,
+) -> list[str]:
+    """Call rtrace and return raw output lines (one 'R G B' per sensor).
+
+    Args:
+        rtrace_args: Override the default _RTRACE_ARGS list.  Pass
+                     RTRACE_ARGS_FAST for quick smoke-tests.
+    """
+    args = rtrace_args if rtrace_args is not None else _RTRACE_ARGS
     with open(sensors_path, "rb") as sensors_file:
         result = subprocess.run(
-            ["rtrace"] + _RTRACE_ARGS + [str(oct_path)],
+            ["rtrace"] + args + [str(oct_path)],
             stdin=sensors_file,
             capture_output=True,
             check=True,
@@ -84,10 +98,13 @@ def run_simulation(
     luminaires: list[Luminaire],
     work_dir: Path | None = None,
     grid_resolution: float = 0.5,
+    rtrace_args: list[str] | None = None,
 ) -> SimulationResult:
     """Full pipeline: Room + Luminaires → SimulationResult.
 
-    Creates temporary files in work_dir (or a temp directory if None).
+    Args:
+        rtrace_args: Override default rtrace quality parameters.  Pass
+                     RTRACE_ARGS_FAST for quick demos; None uses the default.
     """
     def _run(wd: Path) -> SimulationResult:
         mat_path = write_materials(wd)
@@ -99,7 +116,7 @@ def run_simulation(
             raise ValueError(f"No sensor points generated for room '{room.name}'")
 
         sensors_path = write_sensors_pts(points, room.work_plane_height, wd)
-        raw_lines = run_rtrace(oct_path, sensors_path)
+        raw_lines = run_rtrace(oct_path, sensors_path, rtrace_args=rtrace_args)
 
         return build_simulation_result(
             room=room,
