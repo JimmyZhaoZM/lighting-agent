@@ -50,6 +50,24 @@ def save_phase2_checkpoint(results_data: list[dict]) -> Path:
     return out_path
 
 
+def save_phase4_checkpoint(optimization_data: list[dict]) -> Path:
+    """Save Phase 4 output (list[OptimizationResult] as dicts) to a checkpoint file.
+
+    Keeps the _MAX_KEEP most recent files and deletes older ones.
+    Returns the path of the saved file.
+    """
+    _CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_path = _CHECKPOINT_DIR / f"phase4_{timestamp}.json"
+
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(optimization_data, f, ensure_ascii=False, indent=2)
+
+    _prune(prefix="phase4_")
+    return out_path
+
+
 def _prune(prefix: str) -> None:
     """Delete oldest files with the given prefix, keeping only _MAX_KEEP."""
     files = sorted(_CHECKPOINT_DIR.glob(f"{prefix}*.json"))
